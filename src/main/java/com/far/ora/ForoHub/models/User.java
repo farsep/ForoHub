@@ -32,7 +32,7 @@ public class User implements UserDetails {
     private List<Topic> topic;
     @OneToMany(mappedBy = "user")
     private List<Answer> answer;
-    private String Authority = "ROLE_USER";
+    private String authority = "ROLE_USER";
 
     public User(RegisterUser user) {
         this.name = user.name();
@@ -57,7 +57,7 @@ public class User implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(Authority));
+        return List.of(new SimpleGrantedAuthority(authority));
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.far.ora.ForoHub.models.User;
 import com.far.ora.ForoHub.models.dto.register.RegisterUser;
 import com.far.ora.ForoHub.models.dto.show.ShowUser;
 import com.far.ora.ForoHub.models.dto.update.UpdateUser;
+import com.far.ora.ForoHub.security.TokenService;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/user")
 public class ControllerUser {
     @Autowired
+    private TokenService tokenService;
+
+    @Autowired
     private IUserRepo userRepo;
 
     @GetMapping("/{id}")
@@ -40,15 +44,21 @@ public class ControllerUser {
 
     @Transactional
     @PostMapping
-    public ResponseEntity<ShowUser> registerUser(@RequestBody RegisterUser user) {
+    public ResponseEntity<String> registerUser(@RequestBody RegisterUser user) {
         User user1 = new User(user);
         userRepo.save(user1);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(user1.getId())
                 .toUri();
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("message", "User created successfully");
 
-        return ResponseEntity.created(location).body(new ShowUser(user1));
+        HttpHeaders header = new HttpHeaders();
+        header.add("Content-Type", "application/json");
+        String JWTtoken = tokenService.generateToken(user1);
+        jsonObject.addProperty("token", JWTtoken);
+        return ResponseEntity.created(location).body(jsonObject.toString());
     }
 
     @Transactional
