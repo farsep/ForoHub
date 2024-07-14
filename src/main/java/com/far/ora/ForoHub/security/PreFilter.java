@@ -26,16 +26,11 @@ public class PreFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("Filtering request");
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null) {
-            System.out.println("Authorization Header: " + authorizationHeader);
             String token = authorizationHeader.replace("Bearer ", "");
-            System.out.println("Token: " + token);
             String UserName = tokenService.getSubjectAndVerify(token);
             if (UserName != null) {
-                System.out.println("User Name: " + UserName);
-
                 var User = userRepo.findByUsername(UserName);
                 //check if authorization is the same as the "ROLE_JUAN" in the database
                 if (User.getAuthorities().toString().contains("ROLE_USER")) {
@@ -45,7 +40,6 @@ public class PreFilter extends OncePerRequestFilter {
 
             }
         }
-        System.out.println("Filtering response");
         filterChain.doFilter(request, response);
     }
 }
