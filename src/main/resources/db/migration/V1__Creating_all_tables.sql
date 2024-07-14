@@ -1,0 +1,44 @@
+CREATE TABLE IF NOT EXISTS users
+(
+    id         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name   VARCHAR(255)    NOT NULL,
+    password   VARCHAR(255)    NOT NULL,
+    username   VARCHAR(255)    NOT NULL,
+    authority VARCHAR(255) NOT NULL DEFAULT 'ROLE_USER',
+    email VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS courses
+(
+    id       BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name     VARCHAR(255) NOT NULL,
+    category VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS topics
+(
+    id         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title      VARCHAR(200)    NOT NULL,
+    message    TEXT            NOT NULL,
+    user_id    BIGINT UNSIGNED NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    course_id  BIGINT UNSIGNED NOT NULL,
+    FOREIGN KEY (course_id) REFERENCES courses (id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    solved     BOOLEAN   DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS answers
+(
+    id         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    message    TEXT            NOT NULL,
+    user_id    BIGINT UNSIGNED NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    topic_id   BIGINT UNSIGNED NOT NULL,
+    FOREIGN KEY (topic_id) REFERENCES topics (id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE topics
+    ADD COLUMN answer_id BIGINT UNSIGNED,
+    ADD FOREIGN KEY (answer_id) REFERENCES answers (id);
