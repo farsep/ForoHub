@@ -41,6 +41,13 @@ public class User implements UserDetails {
         this.profile = new Profile(user.profile());
     }
 
+    public User(RegisterUser user, String password) {
+        this.name = user.name();
+        this.email = user.email();
+        this.password = password;
+        this.profile = new Profile(user.profile());
+    }
+
     public void Update(UpdateUser user) {
         if (user.name() != null && !user.name().isBlank()) {
             this.name = user.name();

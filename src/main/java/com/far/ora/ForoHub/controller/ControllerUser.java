@@ -2,6 +2,7 @@ package com.far.ora.ForoHub.controller;
 
 import com.far.ora.ForoHub.Repository.IUserRepo;
 import com.far.ora.ForoHub.models.User;
+import com.far.ora.ForoHub.models.dto.login.LoginUser;
 import com.far.ora.ForoHub.models.dto.register.RegisterUser;
 import com.far.ora.ForoHub.models.dto.show.ShowUser;
 import com.far.ora.ForoHub.models.dto.update.UpdateUser;
@@ -12,17 +13,26 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.PasswordAuthentication;
 import java.net.URI;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user")
 public class ControllerUser {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
     @Autowired
     private TokenService tokenService;
 
@@ -43,9 +53,10 @@ public class ControllerUser {
     }
 
     @Transactional
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody RegisterUser user) {
-        User user1 = new User(user);
+        String password = passwordEncoder.encode(user.password());
+        User user1 = new User(user, password);
         userRepo.save(user1);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -59,6 +70,20 @@ public class ControllerUser {
         String JWTtoken = tokenService.generateToken(user1);
         jsonObject.addProperty("token", JWTtoken);
         return ResponseEntity.created(location).body(jsonObject.toString());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody LoginUser user) {
+        Authentication internalAuthentication = new UsernamePasswordAuthenticationToken(user.username(), user.password());
+        authenticationManager.authenticate(internalAuthentication);
+        User user1 = (User) userRepo.findByUsername(user.username());
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("message", "User logged in successfully");
+        HttpHeaders header = new HttpHeaders();
+        header.add("Content-Type", "application/json");
+        String JWTtoken = tokenService.generateToken(user1);
+        jsonObject.addProperty("token", JWTtoken);
+        return ResponseEntity.ok(jsonObject.toString());
     }
 
     @Transactional
