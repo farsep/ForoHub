@@ -1,7 +1,7 @@
 # Final Challenge API Documentation
 
 ## Overview
-This API is part of the final challenge for Alura, designed to demonstrate proficiency in Java, SQL, Spring Boot, and Maven. It provides a platform for managing user profiles and supports various operations such as creating, retrieving, updating, and deleting user information.
+This API is part of the final challenge for Oracle One, designed to demonstrate proficiency in Java, SQL, Spring Boot, and Maven. It provides a platform for managing user profiles and supports various operations such as creating, retrieving, updating, and deleting user information.
 
 ## Technologies Used
 - **Java**: Core programming language ☕
